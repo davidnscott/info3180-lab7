@@ -8,6 +8,46 @@ const app = Vue.createApp({
     }
 });
 
+const upload_form = {
+	name: 'upload-form',
+	template:`
+	<h1> Upload Form</h1>
+	<form id="uploadform" method = "POST" enctype = "multipart/form-data" v-on:submit.prevent="uploadPhoto">
+	<label>Description:</label>
+	<textarea name="desc"></textarea><br>
+	<label>Photo:</label>
+	<input type="file" name ="photo">
+	<button class="btn btn-primary mb-2" >Upload</button>
+	</form>
+	`,
+	methods:{
+		uploadPhoto(){
+		let uploadForm = document.getElementById('uploadform');
+		let form_data = new FormData(uploadForm);
+		fetch("/api/upload", {
+			 method: 'POST',
+			 body:form_data,
+			 headers:{
+				 'X-CSRFToken': token
+			 },
+			 credentials: 'same-origin'
+			})
+			 .then(function (response) {
+			 return response.json();
+			 })
+			 .then(function (jsonResponse) {
+			 // display a success message
+			 console.log(jsonResponse);
+			 })
+			 .catch(function (error) {
+			 console.log(error);
+			 });
+		}
+	},
+};
+ 
+	
+
 app.component('app-header', {
     name: 'AppHeader',
     template: `
@@ -21,6 +61,9 @@ app.component('app-header', {
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
+          </li>
+		  <li class="nav-item active">
+            <router-link class="nav-link" to="/upload">Upload <span class="sr-only">(current)</span></router-link>
           </li>
         </ul>
       </div>
@@ -73,6 +116,7 @@ const NotFound = {
 const routes = [
     { path: "/", component: Home },
     // Put other routes here
+	{ path: "/upload", component: upload_form},
 
     // This is a catch all route in case none of the above matches
     { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound }
